@@ -127,6 +127,33 @@ services:
       - elasticsearch
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: amqp.standalone
+    expose:
+      - 5672
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      start_period: 10s
+      interval: 5s
+      timeout: 30s
+      retries: 3
+    networks:
+      - elk
+      - amqp.net
+
 networks:
   elk:
+    driver: bridge
+  amqp.net:
+    name: amqp.net
     driver: bridge
