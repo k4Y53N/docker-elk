@@ -8,5 +8,15 @@ network.host: 0.0.0.0
 ## X-Pack settings
 ## see https://www.elastic.co/guide/en/elasticsearch/reference/8.18/security-settings.html
 #
-xpack.license.self_generated.type: trial
+xpack.license.self_generated.type: basic
 xpack.security.enabled: true
+
+http.cors.allow-origin: "*"
+http.cors.enabled: true
+http.cors.allow-credentials: true
+http.cors.allow-methods: OPTIONS, POST
+http.cors.allow-headers: X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept
+
+path:
+  repo:
+    - /usr/share/elasticsearch/data/snapshots

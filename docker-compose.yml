@@ -1,5 +1,4 @@
 services:
-
   # The 'setup' service runs a one-off script which initializes users inside
   # Elasticsearch — such as 'logstash_internal' and 'kibana_system' — with the
   # values of the passwords defined in the '.env' file. It also creates the
@@ -65,10 +64,12 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
-      - elasticsearch:/usr/share/elasticsearch/data:Z
-    ports:
-      - 9200:9200
-      - 9300:9300
+      - ./data:/usr/share/elasticsearch/data:Z
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    # ports:
+      # - 9200:9200
+      # - 9300:9300
     environment:
       node.name: elasticsearch
       ES_JAVA_OPTS: -Xms512m -Xmx512m
@@ -91,18 +92,23 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
-    ports:
-      - 5044:5044
-      - 50000:50000/tcp
-      - 50000:50000/udp
-      - 9600:9600
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    # ports:
+      # - 5044:5044
+      # - 50000:50000/tcp
+      # - 50000:50000/udp
+      # - 9600:9600
     environment:
       LS_JAVA_OPTS: -Xms256m -Xmx256m
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
     networks:
       - elk
     depends_on:
       - elasticsearch
+      - rabbitmq
     restart: unless-stopped
 
   kibana:
@@ -112,8 +118,10 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
-    ports:
-      - 5601:5601
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    # ports:
+      # - 5601:5601
     environment:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
@@ -122,9 +130,51 @@ services:
       - elasticsearch
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: amqp.standalone
+    expose:
+      - 5672
+    # ports:
+    #   - "5672:5672"
+    #   - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      start_period: 10s
+      interval: 5s
+      timeout: 30s
+      retries: 3
+    networks:
+      - elk
+      - amqp.net
+
+  nginx:
+    image: nginx:alpine
+    expose:
+      - 80
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro,Z
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro,Z
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    depends_on:
+      - kibana
+      - rabbitmq
+    networks:
+      - elk
+
 networks:
   elk:
     driver: bridge
-
-volumes:
-  elasticsearch:
+  amqp.net:
+    name: amqp.net
+    driver: bridge

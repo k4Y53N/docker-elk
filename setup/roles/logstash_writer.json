@@ -28,6 +28,16 @@
         "write",
         "manage"
       ]
+    },
+    {
+      "names": [
+        "*"
+      ],
+      "privileges": [
+        "write",
+        "create",
+        "create_index"
+      ]
     }
   ]
 }
