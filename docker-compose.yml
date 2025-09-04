@@ -68,8 +68,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     # ports:
-      # - 9200:9200
-      # - 9300:9300
+    # - 9200:9200
+    # - 9300:9300
     environment:
       node.name: elasticsearch
       ES_JAVA_OPTS: -Xms512m -Xmx512m
@@ -95,10 +95,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     # ports:
-      # - 5044:5044
-      # - 50000:50000/tcp
-      # - 50000:50000/udp
-      # - 9600:9600
+    # - 5044:5044
+    # - 50000:50000/tcp
+    # - 50000:50000/udp
+    # - 9600:9600
     environment:
       LS_JAVA_OPTS: -Xms256m -Xmx256m
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
@@ -121,7 +121,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     # ports:
-      # - 5601:5601
+    # - 5601:5601
     environment:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
@@ -154,6 +154,7 @@ services:
     networks:
       - elk
       - amqp.net
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
@@ -171,6 +172,7 @@ services:
       - rabbitmq
     networks:
       - elk
+    restart: unless-stopped
 
 networks:
   elk:
