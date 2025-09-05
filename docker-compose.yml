@@ -67,6 +67,9 @@ services:
       - ./data:/usr/share/elasticsearch/data:Z
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+    expose:
+      - 9200
+      - 9300
     # ports:
     # - 9200:9200
     # - 9300:9300
@@ -94,6 +97,10 @@ services:
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+    expose:
+      - 5044
+      - 50000
+      - 9600
     # ports:
     # - 5044:5044
     # - 50000:50000/tcp
@@ -120,6 +127,8 @@ services:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+    expose:
+      - 5601
     # ports:
     # - 5601:5601
     environment:
@@ -135,6 +144,7 @@ services:
     hostname: amqp.standalone
     expose:
       - 5672
+      - 15672
     # ports:
     #   - "5672:5672"
     #   - "15672:15672"
