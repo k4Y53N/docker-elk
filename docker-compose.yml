@@ -176,6 +176,7 @@ services:
 
 networks:
   elk:
+    name: elk.net
     driver: bridge
   amqp.net:
     name: amqp.net
