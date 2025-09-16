@@ -1,3 +1,10 @@
+x-general: &general
+  restart: unless-stopped
+  logging:
+    options:
+      max-size: 256m
+      max-file: 4
+
 services:
   # The 'setup' service runs a one-off script which initializes users inside
   # Elasticsearch — such as 'logstash_internal' and 'kibana_system' — with the
@@ -58,6 +65,7 @@ services:
     network_mode: none
 
   elasticsearch:
+    <<: *general
     build:
       context: elasticsearch/
       args:
@@ -83,11 +91,12 @@ services:
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/8.18/bootstrap-checks.html
       discovery.type: single-node
+      logger.level: warn
     networks:
       - elk
-    restart: unless-stopped
 
   logstash:
+    <<: *general
     build:
       context: logstash/
       args:
@@ -116,9 +125,9 @@ services:
     depends_on:
       - elasticsearch
       - rabbitmq
-    restart: unless-stopped
 
   kibana:
+    <<: *general
     build:
       context: kibana/
       args:
@@ -137,9 +146,9 @@ services:
       - elk
     depends_on:
       - elasticsearch
-    restart: unless-stopped
 
   rabbitmq:
+    <<: *general
     image: rabbitmq:3-management
     hostname: amqp.standalone
     expose:
@@ -164,9 +173,9 @@ services:
     networks:
       - elk
       - amqp.net
-    restart: unless-stopped
 
   nginx:
+    <<: *general
     image: nginx:alpine
     expose:
       - 80
@@ -182,7 +191,6 @@ services:
       - rabbitmq
     networks:
       - elk
-    restart: unless-stopped
 
 networks:
   elk:
