@@ -43,7 +43,8 @@ services:
       BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
     network_mode: service:elasticsearch
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   # The 'kibana-genkeys' service runs a one-off command which generates and
   # prints encryption keys for Kibana.
@@ -94,6 +95,13 @@ services:
       logger.level: warn
     networks:
       - elk
+    healthcheck:
+      test: curl -u elastic:${ELASTIC_PASSWORD} -s -f http://localhost:9200/_cat/health >/dev/null || exit 1
+      start_period: 5m
+      start_interval: 5s
+      interval: 1m
+      timeout: 30s
+      retries: 3
 
   logstash:
     <<: *general
@@ -123,8 +131,10 @@ services:
     networks:
       - elk
     depends_on:
-      - elasticsearch
-      - rabbitmq
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   kibana:
     <<: *general
@@ -145,7 +155,8 @@ services:
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   rabbitmq:
     <<: *general
@@ -166,8 +177,9 @@ services:
       - /etc/timezone:/etc/timezone:ro
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
-      start_period: 10s
-      interval: 5s
+      start_period: 30s
+      start_interval: 2s
+      interval: 1m
       timeout: 30s
       retries: 3
     networks:
@@ -187,6 +199,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     depends_on:
+      - elasticsearch
       - kibana
       - rabbitmq
     networks:
