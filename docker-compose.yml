@@ -158,21 +158,49 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  rbmq-setup:
+    profiles:
+      - setup
+    image: rabbitmq:3-management
+    init: true
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASS=${RABBITMQ_PASS}
+      - RABBITMQ_MANAGEMENT_PATH_PREFIX=${RABBITMQ_MANAGEMENT_PATH_PREFIX}
+      - MQTT_VHOST=${MQTT_VHOST}
+      - MQTT_EXCHANGE_REGEX=${MQTT_EXCHANGE_REGEX}
+      - MQTT_RW_USER=${MQTT_RW_USER}
+      - MQTT_RW_PASS=${MQTT_RW_PASS}
+      - MQTT_RO_USER=${MQTT_RO_USER}
+      - MQTT_RO_PASS=${MQTT_RO_PASS}
+    volumes:
+      - ./rabbitmq/setup.sh:/setup.sh:ro
+    entrypoint: ["sh", "/setup.sh"]
+    network_mode: service:rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   rabbitmq:
     <<: *general
     image: rabbitmq:3-management
-    hostname: amqp.standalone
+    hostname: rbmq.standalone
     expose:
-      - 5672
-      - 15672
-    # ports:
-    #   - "5672:5672"
-    #   - "15672:15672"
+      - 1883 # mqtt
+      - 5672 # rbmq
+      - 15672 # management
+      - 15675 # mqtt ws
+    ports:
+      - "5672:5672"
+      - "1883:1883"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+      - RABBITMQ_FEATURE_FLAGS=${RABBITMQ_FEATURE_FLAGS}
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rbmqdata:/var/lib/rabbitmq:rw
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     healthcheck:
@@ -184,7 +212,7 @@ services:
       retries: 3
     networks:
       - elk
-      - amqp.net
+      - rbmq.net
 
   nginx:
     <<: *general
@@ -209,6 +237,6 @@ networks:
   elk:
     name: elk.net
     driver: bridge
-  amqp.net:
-    name: amqp.net
+  rbmq.net:
+    name: rbmq.net
     driver: bridge
