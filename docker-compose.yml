@@ -1,5 +1,6 @@
 x-general: &general
   restart: unless-stopped
+  env_file: .env
   logging:
     options:
       max-size: 256m
