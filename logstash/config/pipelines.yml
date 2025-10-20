@@ -1,0 +1,2 @@
+- pipeline.id: event
+  path.config: "/usr/share/logstash/pipeline/event.conf"

@@ -112,6 +112,7 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
