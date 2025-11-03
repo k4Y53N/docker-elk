@@ -9,7 +9,8 @@
       "names": [
         "logs-generic-default",
         "logstash-*",
-        "ecs-logstash-*"
+        "ecs-logstash-*",
+        "*"
       ],
       "privileges": [
         "write",
@@ -27,16 +28,6 @@
       "privileges": [
         "write",
         "manage"
-      ]
-    },
-    {
-      "names": [
-        "*"
-      ],
-      "privileges": [
-        "write",
-        "create",
-        "create_index"
       ]
     }
   ]
