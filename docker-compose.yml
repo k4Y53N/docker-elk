@@ -163,7 +163,7 @@ services:
   rbmq-setup:
     profiles:
       - setup
-    image: rabbitmq:3-management
+    image: rabbitmq:3.13.7-management-alpine
     init: true
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER}
@@ -185,7 +185,7 @@ services:
 
   rabbitmq:
     <<: *general
-    image: rabbitmq:3-management
+    image: rabbitmq:3.13.7-management-alpine
     hostname: rbmq.standalone
     expose:
       - 1883 # mqtt
