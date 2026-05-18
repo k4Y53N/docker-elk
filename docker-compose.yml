@@ -216,6 +216,7 @@ services:
   nginx:
     <<: *general
     image: nginx:alpine
+    hostname: elk.nginx
     expose:
       - 80
     ports:
