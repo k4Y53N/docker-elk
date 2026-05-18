@@ -95,7 +95,7 @@ services:
       discovery.type: single-node
       logger.level: warn
     networks:
-      - elk
+      - elk.net
     healthcheck:
       test: curl -u elastic:${ELASTIC_PASSWORD} -s -f http://localhost:9200/_cat/health >/dev/null || exit 1
       start_period: 5m
@@ -131,7 +131,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASS: ${RABBITMQ_PASS}
     networks:
-      - elk
+      - elk.net
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -155,7 +155,7 @@ services:
     environment:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
-      - elk
+      - elk.net
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -213,7 +213,7 @@ services:
       timeout: 30s
       retries: 3
     networks:
-      - elk
+      - elk.net
       - rbmq.net
 
   nginx:
@@ -233,10 +233,10 @@ services:
       - kibana
       - rabbitmq
     networks:
-      - elk
+      - elk.net
 
 networks:
-  elk:
+  elk.net:
     name: elk.net
     driver: bridge
   rbmq.net:
