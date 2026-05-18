@@ -80,9 +80,6 @@ services:
     expose:
       - 9200
       - 9300
-    # ports:
-    # - 9200:9200
-    # - 9300:9300
     environment:
       node.name: elasticsearch
       ES_JAVA_OPTS: -Xms512m -Xmx512m
@@ -222,7 +219,7 @@ services:
     expose:
       - 80
     ports:
-      - "80:80"
+      - "9200:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/includes:/etc/nginx/includes:ro
