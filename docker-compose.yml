@@ -74,7 +74,7 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
-      - ./data:/usr/share/elasticsearch/data:Z
+      - elasticsearch-data:/usr/share/elasticsearch/data:Z
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     expose:
@@ -202,7 +202,7 @@ services:
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
-      - ./rbmqdata:/var/lib/rabbitmq:rw
+      - rabbitmq-data:/var/lib/rabbitmq:rw
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     healthcheck:
@@ -242,3 +242,17 @@ networks:
   rbmq.net:
     name: rbmq.net
     driver: bridge
+
+volumes:
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./elasticsearch-data
+  rabbitmq-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./rabbitmq-data
